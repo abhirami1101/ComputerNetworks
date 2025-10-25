@@ -1,0 +1,2 @@
+P1 - connections, sockets, data relay
+P2 - concurrency, request parsing, header handling
