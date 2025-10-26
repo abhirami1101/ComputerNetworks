@@ -1,10 +1,7 @@
 import socket
-import threading
 
-class ProxyServer:
-    '''Proxy server that listens for incoming connections, 
-    creates a new thread for each client that handles the 
-    communication between the client and the server'''
+class SocketManager:
+    '''Socket manager class to handle socket operations'''
     def __init__(self, port = 8080):
         self.host = '0.0.0.0'
         self.port = port
@@ -20,14 +17,13 @@ class ProxyServer:
         while self.running:
             client_socket, addr = self.server_socket.accept()
             print(f"Accepted connection from {addr}")
-            # start a new thread to handle the client connection
-            client_handler = threading.Thread(target=self.handle_client, args=(client_socket,))
-            client_handler.start()
+            # returns the client socket and address, so that it can be handled by another component
+            return client_socket, addr
         
     def close(self):
         self.running = False
         if self.server_socket:
             self.server_socket.close()
-            print("Proxy server closed")
+            print("Listening socket closed")
 
     
