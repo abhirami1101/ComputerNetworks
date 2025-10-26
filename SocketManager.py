@@ -14,7 +14,8 @@ class SocketManager:
         self.server_socket.listen(100)
         print(f"Proxy server started on port {self.port}")
 
-        while self.running:
+
+    def accept_connection(self):
             client_socket, addr = self.server_socket.accept()
             print(f"Accepted connection from {addr}")
             # returns the client socket and address, so that it can be handled by another component
