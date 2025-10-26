@@ -17,7 +17,7 @@ class SocketManager:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # to allow reusing the address
         self.server_socket.bind((self.host, self.port))
-        self.server_socket.listen(100)
+        self.server_socket.listen(config.MAX_CLIENTS)
         print(f"\nProxy server started on port {self.port}\n")
 
 
