@@ -28,7 +28,7 @@ class SocketManager:
             return client_socket, addr
     
     def threading_for_clients(self, client_socket):
-         client_handler = threading.Thread(target = header_handling.handle_client, args = client_socket)
+         client_handler = threading.Thread(target = header_handling.handle_client, args = (client_socket, ))
          client_handler.start()
 
     def run(self):

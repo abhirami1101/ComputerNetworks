@@ -102,15 +102,15 @@ def handle_http(socket, req_data, first_part_of_payload, method, url):
         modified_request = "\r\n".join(modified_headers).encode('utf-8') + b'\r\n\r\n'
 
         # Connect to remote host 
-        remote_connection = ProxyToServer(hostname, port_num)
+        remote_connection = ProxyToServer.ProxyToServer(hostname, port_num)
         remote_connection.connect()
-        remote_connection.sendall(modified_request)
+        remote_connection.sock.sendall(modified_request)
 
         if first_part_of_payload:
-            remote_connection.sendall(first_part_of_payload)
+            remote_connection.sock.sendall(first_part_of_payload)
 
         # transfer data between two sockets
-        data_transfer = DataRelay(socket, remote_connection)
+        data_transfer = DataRelay.DataRelay(socket, remote_connection)
         data_transfer.relay()
 
     except socket.error as e:

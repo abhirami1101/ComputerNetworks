@@ -5,7 +5,7 @@ import SocketManager
 
 def main():
     try:
-        proxy_socket_manager = SocketManager()
+        proxy_socket_manager = SocketManager.SocketManager()
         proxy_socket_manager.start()
         proxy_socket_manager.run()
     except Exception as e:
