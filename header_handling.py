@@ -60,11 +60,25 @@ def handle_connect(socket, url):
         # parse hostname and port from url - they are separated by :
         hostname, port_num = url.split(':')
         port_num = int(port_num)
+        remote_conn = ProxyToServer.ProxyToServer(hostname, port_num)
+        remote_socket = remote_conn.connect()
+        socket.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
+
+        data_transfer = DataRelay.DataRelay(socket, remote_socket)
+        data_transfer.relay()
     except ValueError:
         print(f"!!!! Oops !!! Invalid connect request, error in url : {url}")
         return
+    except Exception as e:
+        print(f"[!] Error in handle_connect: {e}")
+        try:
+            socket.sendall(b"HTTP/1.1 502 Bad Gateway\r\n\r\n")
+        except:
+            pass
+        socket.close()
     
     # establish connection with dest server
+    
 
 def handle_http(socket, req_data, first_part_of_payload, method, url):
     print("Handling other kinds of http reqs")
@@ -110,7 +124,7 @@ def handle_http(socket, req_data, first_part_of_payload, method, url):
             remote_connection.sock.sendall(first_part_of_payload)
 
         # transfer data between two sockets
-        data_transfer = DataRelay.DataRelay(socket, remote_connection)
+        data_transfer = DataRelay.DataRelay(socket, remote_connection.sock)
         data_transfer.relay()
 
     except socket.error as e:

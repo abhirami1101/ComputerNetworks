@@ -19,12 +19,16 @@ class DataRelay:
                     if sock is self.source:
                         # recvd_data = UtilsSocket.recv_until(self.source)
                         recvd_data = sock.recv(self.buff_size)
-                        self.dest.send_all(self.dest, recvd_data)
+                        if not recvd_data:
+                            return
+                        self.dest.sendall(recvd_data)
                     elif sock is self.dest:
                         # recvd_data = UtilsSocket.recv_until(self.dest)
                         # cant use this as data relaying is for the rest of the data
                         recvd_data = sock.recv(self.buff_size) 
-                        self.source.send_all(self.source, recvd_data)
+                        if not recvd_data:
+                            return
+                        self.source.sendall(recvd_data)
         except Exception as e:
             print(f"Data relay error: {e}")
         finally:
