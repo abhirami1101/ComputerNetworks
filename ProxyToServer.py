@@ -18,4 +18,7 @@ class ProxyToServer:
             return self.sock
         except socket.error as e:
             print(f"Error connecting to server {self.host}:{self.port} --- {e}")
-            raise
+            raise Exception(f"Error{e}")
+        
+    def close(self):
+        self.sock.close()

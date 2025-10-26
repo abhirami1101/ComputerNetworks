@@ -2,7 +2,10 @@ import socket
 import config
 
 class UtilsSocket:
-    '''Utility class for socket operations'''
+    '''
+    Utility class for socket operations
+    '''
+    # Nand: I have implemented a better method for this recv_until func. It is in header handling.py
     @staticmethod
     def recv_until(sock, delimiter = b'\r\n\r\n'):
         """

@@ -1,4 +1,6 @@
 import config
+import ProxyToServer
+import DataRelay
 """
 This module deals with the header handling
 """
@@ -42,13 +44,13 @@ def handle_client(client_socket):
     method, url, version = header_parts
 
     print(f">>> {method}")
-    print(f"\t{url}\n\t{version}")
+    print(f"\tURL : {url}\n\t Version : {version}")
 
     if method.upper() == "CONNECT":
-        print("deal connect")
+        handle_connect(client_socket, url)
 
     else:
-        print(f"other method : {method}")
+        handle_http(client_socket, header, first_part_of_payload, method, url)
 
 def handle_connect(socket, url):
     """
@@ -64,39 +66,60 @@ def handle_connect(socket, url):
     
     # establish connection with dest server
 
-def handle_http(socket, req_data, method, url):
+def handle_http(socket, req_data, first_part_of_payload, method, url):
     print("Handling other kinds of http reqs")
+    try:
+        header = req_data.decode('utf-8', 'ignore').split('\r\n')
+        host_header = next((h for h in header if h.lower().startswith('host:')), None)
 
-    header = req_data.decode('utf-8', 'ignore').split('\r\n')
-    host_header = next((h for h in header if h.lower().startswith('host:')), None)
+        if not host_header:
+            print("!!!! OOps. Could not find host header")
+            return
+        
+        hostname = host_header.split(' ')[1]
+        port_num = config.HTTP_PORT
 
-    if not host_header:
-        print("!!!! OOps. Could not find host header")
-        return
-    
-    hostname = host_header.split(' ')[1]
-    port = config.HTTP_PORT
+        if ':' in hostname:
+            hostname, port_num = hostname.split(':')
+            port_num = int(port_num)
 
-    if ':' in hostname:
-        hostname, port_num = hostname.split(':')
-        port_num = int(port_num)
+        # ============ Modification to request header =============
 
-    # ============ Modification to request header =============
+        modified_headers = []
+        first_line =  f"{method} {url} HTTP/1.0"
+        modified_headers.append(first_line)
+        
+        for line in header[1:]:
+            if line.lower().startswith("proxy-connection:"):
+                # Replace with 'close'
+                modified_headers.append("Proxy-Connection: close")
+            elif not line.lower().startswith("connection:"):
+                # Keep other headers
+                modified_headers.append(line)
+        modified_headers.append("Connection: close")
 
-    modified_headers = []
-    first_line =  f"{method} {url} HTTP/1.0"
-    modified_headers.append(first_line)
-    
-    for line in header[1:]:
-        if line.lower().startswith("proxy-connection:"):
-            # Replace with 'close'
-            modified_headers.append("Proxy-Connection: close")
-        elif not line.lower().startswith("connection:"):
-            # Keep other headers
-            modified_headers.append(line)
-    modified_headers.append("Connection: close")
+        # The header must end with a double CRLF
+        modified_request = "\r\n".join(modified_headers).encode('utf-8') + b'\r\n\r\n'
 
-    # The header must end with a double CRLF
-    modified_request = "\r\n".join(modified_headers).encode('utf-8') + b'\r\n\r\n'
+        # Connect to remote host 
+        remote_connection = ProxyToServer(hostname, port_num)
+        remote_connection.connect()
+        remote_connection.sendall(modified_request)
 
-    # Connect to remote host 
+        if first_part_of_payload:
+            remote_connection.sendall(first_part_of_payload)
+
+        # transfer data between two sockets
+        data_transfer = DataRelay(socket, remote_connection)
+        data_transfer.relay()
+
+    except socket.error as e:
+        print(f"[!] Socket error during HTTP handling: {e}")
+    except Exception as e:
+        print(f"[!] Error during HTTP handling: {e}")
+    finally:
+        if 'remote_connection' in locals():
+            remote_connection.close()
+
+
+
