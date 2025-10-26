@@ -1,5 +1,6 @@
 import socket
 import config
+import threading
 import header_handling
 
 class SocketManager:
@@ -25,6 +26,15 @@ class SocketManager:
             print(f"Accepted connection from {addr}\n")
             # returns the client socket and address, so that it can be handled by another component
             return client_socket, addr
+    
+    def threading_for_clients(self, client_socket):
+         client_handler = threading.Thread(target = header_handling.handle_client, args = client_socket)
+         client_handler.start()
+
+    def run(self):
+         while True:
+              client_socket, addr = self.accept_connection()
+              self.threading_for_clients(client_socket)
         
     def close(self):
         self.running = False
