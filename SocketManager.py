@@ -1,4 +1,5 @@
 import socket
+<<<<<<< HEAD:Server.py
 import threading
 import sys
 import config
@@ -7,6 +8,13 @@ class ProxyServer:
 
     def __init__(self, port = config.PORT):
         self.host = config.HOST
+=======
+
+class SocketManager:
+    '''Socket manager class to handle socket operations'''
+    def __init__(self, port = 8080):
+        self.host = '0.0.0.0'
+>>>>>>> 07ddc0ee1556ae4844d57c600b4a6917317e4300:SocketManager.py
         self.port = port
         self.running = True
         self.server_socket = None
@@ -21,15 +29,14 @@ class ProxyServer:
         while self.running:
             client_socket, addr = self.server_socket.accept()
             print(f"Accepted connection from {addr}")
-            # start a new thread to handle the client connection
-            client_handler = threading.Thread(target=self.handle_client, args=(client_socket,))
-            client_handler.start()
+            # returns the client socket and address, so that it can be handled by another component
+            return client_socket, addr
         
     def close(self):
         self.running = False
         if self.server_socket:
             self.server_socket.close()
-            print("Proxy server closed")
+            print("Listening socket closed")
 
     def handle_client(client_socket):
         """
