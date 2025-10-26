@@ -1,4 +1,4 @@
-# Lab4_ComputerNetworks
+# ComputerNetworks
 
 ## Lab 4 :
     - Abhirami R Iyer (112201001)
