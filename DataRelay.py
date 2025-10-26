@@ -1,6 +1,6 @@
 import config
 import select
-from UtilsSocket import UtilsSocket
+
 
 class DataRelay:
     ''' for bidirectional data transfer
