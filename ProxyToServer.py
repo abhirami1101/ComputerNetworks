@@ -7,7 +7,7 @@ class ProxyToServer:
         self.host = host
         self.port = port
         self.sock = None
-        self.timeout = 5
+        self.timeout = 10
 
     def connect(self):
         try:
