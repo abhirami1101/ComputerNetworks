@@ -1,3 +1,4 @@
+import config
 """
 This module deals with the header handling
 """
@@ -20,6 +21,7 @@ def recieve_header(socket):
         header = header_buffer[:header_end_index]
         first_part_of_payload = header_buffer[header_end_index:]
 
+        print(f"Recieved header : {header}")
         return header, first_part_of_payload
     
 def handle_client(client_socket):
@@ -39,10 +41,62 @@ def handle_client(client_socket):
     
     method, url, version = header_parts
 
-    print(f">>> {method} {url}")
+    print(f">>> {method}")
+    print(f"\t{url}\n\t{version}")
 
     if method.upper() == "CONNECT":
         print("deal connect")
 
     else:
         print(f"other method : {method}")
+
+def handle_connect(socket, url):
+    """
+    Create a TCP tunnel for CONNECT request
+    """
+    try:
+        # parse hostname and port from url - they are separated by :
+        hostname, port_num = url.split(':')
+        port_num = int(port_num)
+    except ValueError:
+        print(f"!!!! Oops !!! Invalid connect request, error in url : {url}")
+        return
+    
+    # establish connection with dest server
+
+def handle_http(socket, req_data, method, url):
+    print("Handling other kinds of http reqs")
+
+    header = req_data.decode('utf-8', 'ignore').split('\r\n')
+    host_header = next((h for h in header if h.lower().startswith('host:')), None)
+
+    if not host_header:
+        print("!!!! OOps. Could not find host header")
+        return
+    
+    hostname = host_header.split(' ')[1]
+    port = config.HTTP_PORT
+
+    if ':' in hostname:
+        hostname, port_num = hostname.split(':')
+        port_num = int(port_num)
+
+    # ============ Modification to request header =============
+
+    modified_headers = []
+    first_line =  f"{method} {url} HTTP/1.0"
+    modified_headers.append(first_line)
+    
+    for line in header[1:]:
+        if line.lower().startswith("proxy-connection:"):
+            # Replace with 'close'
+            modified_headers.append("Proxy-Connection: close")
+        elif not line.lower().startswith("connection:"):
+            # Keep other headers
+            modified_headers.append(line)
+    modified_headers.append("Connection: close")
+
+    # The header must end with a double CRLF
+    modified_request = "\r\n".join(modified_headers).encode('utf-8') + b'\r\n\r\n'
+
+    # Connect to remote host 
