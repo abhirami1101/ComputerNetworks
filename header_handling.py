@@ -35,7 +35,9 @@ def handle_client(client_socket):
     if not header:
         return
     
-    header_first_line = header.split(b'\r\n')[0].decode('utf-8', 'ignore')
+    header = header.replace(b'\r\n', b'\n')
+    header_first_line = header.split(b'\n')[0].decode('utf-8', 'ignore')
+    # header_first_line = header.split(b'\r\n')[0].decode('utf-8', 'ignore')
     header_parts = header_first_line.split()
 
     if len(header_parts)<3:
@@ -56,10 +58,21 @@ def handle_connect(socket, url):
     """
     Create a TCP tunnel for CONNECT request
     """
+    # try:
+        # parse hostname and port from url - they are separated by :
+    hostname, port_num = url.split(':')
     try:
         # parse hostname and port from url - they are separated by :
-        hostname, port_num = url.split(':')
         port_num = int(port_num)
+    except:
+        print("Port number not present.")
+        if url.lower().startswith('https://'):
+            port_num = config.HTTPS_PORT
+        else:
+            port_num = config.HTTP_PORT
+        print(f"Assigned port number : {port_num}")
+        
+    try:
         remote_conn = ProxyToServer.ProxyToServer(hostname, port_num)
         remote_socket = remote_conn.connect()
         socket.sendall(b"HTTP/1.1 200 Connection Established\r\n\r\n")
@@ -82,23 +95,35 @@ def handle_connect(socket, url):
 
 def handle_http(socket, req_data, first_part_of_payload, method, url):
     print("Handling other kinds of http reqs")
-    try:
-        header = req_data.decode('utf-8', 'ignore').split('\r\n')
-        host_header = next((h for h in header if h.lower().startswith('host:')), None)
+   
+    header = req_data.replace(b'\r\n', b'\n')
+    header = header.split(b'\n')[0].decode('utf-8', 'ignore')
+        # header = req_data.decode('utf-8', 'ignore').split('\r\n')
+    host_header = next((h for h in header if h.lower().startswith('host:')), None)
 
-        if not host_header:
-            print("!!!! OOps. Could not find host header")
-            return
+    if not host_header:
+        print("!!!! OOps. Could not find host header")
+        return
         
-        hostname = host_header.split(' ')[1]
-        port_num = config.HTTP_PORT
+    hostname = host_header.split(' ')[1]
+    port_num = config.HTTP_PORT
 
-        if ':' in hostname:
-            hostname, port_num = hostname.split(':')
+    if ':' in hostname:
+        hostname, port_num = hostname.split(':')
+        try:
+        # parse hostname and port from url - they are separated by :
             port_num = int(port_num)
-
+        except:
+            print("Port number not present.")
+            if url.lower().startswith('https://'):
+                port_num = config.HTTPS_PORT
+            else:
+                port_num = config.HTTP_PORT
+            print(f"Assigned port number : {port_num}")
+        # port_num = int(port_num)
+        
         # ============ Modification to request header =============
-
+    try :
         modified_headers = []
         first_line =  f"{method} {url} HTTP/1.0"
         modified_headers.append(first_line)
