@@ -1,6 +1,7 @@
 import config
 import ProxyToServer
 import DataRelay
+import socket as se
 """
 This module deals with the header handling
 """
@@ -23,7 +24,7 @@ def recieve_header(socket):
         header = header_buffer[:header_end_index]
         first_part_of_payload = header_buffer[header_end_index:]
 
-        print(f"Recieved header : {header}")
+        # print(f"Recieved header : {header}")
         return header, first_part_of_payload
     
 def handle_client(client_socket):
@@ -45,8 +46,8 @@ def handle_client(client_socket):
     
     method, url, version = header_parts
 
-    print(f">>> {method}")
-    print(f"\tURL : {url}\n\t Version : {version}")
+    print(f">>> {method}\tURL : {url}\t Version : {version}")
+    # print(f"\tURL : {url}\n\t Version : {version}")
 
     if method.upper() == "CONNECT":
         handle_connect(client_socket, url)
@@ -97,8 +98,11 @@ def handle_http(socket, req_data, first_part_of_payload, method, url):
     print("Handling other kinds of http reqs")
    
     header = req_data.replace(b'\r\n', b'\n')
-    header = header.split(b'\n')[0].decode('utf-8', 'ignore')
-        # header = req_data.decode('utf-8', 'ignore').split('\r\n')
+    header = header.decode('utf-8', 'ignore')
+    header = req_data.decode('utf-8', 'ignore').split('\n')
+
+    # header = header.split(b'\n')[0].decode('utf-8', 'ignore')
+    # header = req_data.decode('utf-8', 'ignore').split('\r\n')
     host_header = next((h for h in header if h.lower().startswith('host:')), None)
 
     if not host_header:
@@ -152,7 +156,7 @@ def handle_http(socket, req_data, first_part_of_payload, method, url):
         data_transfer = DataRelay.DataRelay(socket, remote_connection.sock)
         data_transfer.relay()
 
-    except socket.error as e:
+    except se.error as e:
         print(f"[!] Socket error during HTTP handling: {e}")
     except Exception as e:
         print(f"[!] Error during HTTP handling: {e}")

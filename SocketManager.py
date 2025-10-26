@@ -23,7 +23,7 @@ class SocketManager:
 
     def accept_connection(self):
             client_socket, addr = self.server_socket.accept()
-            print(f"Accepted connection from {addr}\n")
+            # print(f"Accepted connection from {addr}\n")
             # returns the client socket and address, so that it can be handled by another component
             return client_socket, addr
     
