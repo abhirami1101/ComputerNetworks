@@ -1,7 +1,7 @@
 import socket
 
 class ProxyToServer:
-    '''Creates a TCP connection to the given host and port. 
+    '''creates a TCP connection to the given host and port. 
     Returns a connected socket or raises an error.'''
     def __init__(self, host, port):
         self.host = host
