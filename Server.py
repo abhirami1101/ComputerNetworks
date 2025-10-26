@@ -1,9 +1,10 @@
 import socket
 import threading
-import sys
 
 class ProxyServer:
-
+    '''Proxy server that listens for incoming connections, 
+    creates a new thread for each client that handles the 
+    communication between the client and the server'''
     def __init__(self, port = 8080):
         self.host = '0.0.0.0'
         self.port = port
