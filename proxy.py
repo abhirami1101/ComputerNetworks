@@ -34,6 +34,7 @@ def handle_client(client_socket):
     try:
         # Read the initial request from the browser
         request_data = client_socket.recv(BUFFER_SIZE)
+        print("\n\n\n Printing data \n\n")
         print(request_data)
         if not request_data:
             return

@@ -1,9 +1,13 @@
 import socket
+import config
+import header_handling
 
 class SocketManager:
-    '''Socket manager class to handle socket operations'''
-    def __init__(self, port = 8080):
-        self.host = '0.0.0.0'
+    '''
+    Socket manager class to handle socket operations
+    '''
+    def __init__(self, port = config.PORT):
+        self.host = config.HOST
         self.port = port
         self.running = True
         self.server_socket = None
@@ -13,12 +17,12 @@ class SocketManager:
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) # to allow reusing the address
         self.server_socket.bind((self.host, self.port))
         self.server_socket.listen(100)
-        print(f"Proxy server started on port {self.port}")
+        print(f"\nProxy server started on port {self.port}\n")
 
 
     def accept_connection(self):
             client_socket, addr = self.server_socket.accept()
-            print(f"Accepted connection from {addr}")
+            print(f"Accepted connection from {addr}\n")
             # returns the client socket and address, so that it can be handled by another component
             return client_socket, addr
         
@@ -26,18 +30,7 @@ class SocketManager:
         self.running = False
         if self.server_socket:
             self.server_socket.close()
-            print("Listening socket closed")
+            print("Listening socket closed..............")
 
-    def handle_client(client_socket):
-        """
-        Handle a client request
-        """
-        try:
-            request = client_socket.recv(config.BUFFER_SIZE)
-            print(request)
-            if not request:
-                return
-        except Exception as e:
-            print(f"Caught up with an error {e}")
 
     
