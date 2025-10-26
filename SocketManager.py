@@ -1,20 +1,9 @@
 import socket
-<<<<<<< HEAD:Server.py
-import threading
-import sys
-import config
-
-class ProxyServer:
-
-    def __init__(self, port = config.PORT):
-        self.host = config.HOST
-=======
 
 class SocketManager:
     '''Socket manager class to handle socket operations'''
     def __init__(self, port = 8080):
         self.host = '0.0.0.0'
->>>>>>> 07ddc0ee1556ae4844d57c600b4a6917317e4300:SocketManager.py
         self.port = port
         self.running = True
         self.server_socket = None
